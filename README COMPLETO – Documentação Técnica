@@ -1,0 +1,34 @@
+# Fullstack Secure Auth (Demo)
+
+## Requisitos
+- Node 18+
+- npm
+
+## Como rodar
+
+### Backend
+1. abrir terminal em /backend
+2. npm install
+3. npm run seed (cria usuário admin)
+4. npm start
+
+### Frontend
+1. abrir terminal em /frontend
+2. npm install
+3. npm run dev
+
+Acesse http://localhost:3000 (frontend) e API em http://localhost:4000
+
+## Testes
+### Backend
+- cd backend
+- npm test
+
+### Frontend
+- cd frontend
+- npm test
+
+## Observações
+- Em produção ajuste `secure:true` nos cookies e utilize TLS
+- Substitua `CONFIG.JWT_SECRET`
+
