@@ -1,34 +1,156 @@
-# Fullstack Secure Auth (Demo)
 
-## Requisitos
-- Node 18+
-- npm
+# Projeto 0 — Documentação Técnica
 
-## Como rodar
+Resumo
+-
+Este repositório contém um exemplo fullstack (frontend + backend) demonstrando autenticação segura com tokens JWT (access + refresh), refresh token rotation e testes automatizados. É pensado como um boilerplate para aprender e testar fluxos de autenticação modernos.
 
-### Backend
-1. abrir terminal em /backend
-2. npm install
-3. npm run seed (cria usuário admin)
-4. npm start
+Stack Tecnológica
+-
+- Backend: Node.js + Express
+- Autenticação: JWT (access + refresh tokens)
+- Hash de senhas: bcrypt
+- Testes backend: Jest
+- Frontend: Vite + React
+- Testes frontend: Jest + React Testing Library
 
-### Frontend
-1. abrir terminal em /frontend
-2. npm install
-3. npm run dev
+Arquitetura & Fluxo de Autenticação
+-
+- O backend expõe endpoints de autenticação (login, refresh, logout) e rotas protegidas.
+- Após o login bem-sucedido o servidor emite um access token (curta duração) e um refresh token (maior duração). O access token é usado para autenticar chamadas à API. O refresh token é persistido em cookie httpOnly e pode ser trocado por um novo access token quando necessário.
+- É recomendada a rotação/invalidação dos refresh tokens (ver `auth/` no backend). Em produção configurar `secure: true` nos cookies e servir via HTTPS.
 
-Acesse http://localhost:3000 (frontend) e API em http://localhost:4000
+Estrutura do Projeto
+-
+```
+/
+	package.json (monorepo scripts)
+	README COMPLETO – Documentação Técnica
+	backend/
+		package.json
+		src/
+			app.js
+			server.js
+			db.js
+			config.js
+			seed.js
+			protected.routes.js
+			auth/
+				auth.controller.js
+				auth.service.js
+				auth.routes.js
+				auth.middleware.js
+		jest.config.js
+	frontend/
+		package.json
+		src/
+			main.jsx
+			App.jsx
+			index.css
+			auth/
+				api.js
+				AuthContext.jsx
+				Login.jsx
+				PrivateRoute.jsx
+			pages/
+				Dashboard.jsx
+		vite.config.js
+		jest.config.js
+```
 
-## Testes
-### Backend
-- cd backend
-- npm test
+Pré-requisitos
+-
+- Node.js 18+ e npm
+- Git (para sincronizar com o GitHub)
 
-### Frontend
-- cd frontend
-- npm test
+Variáveis de ambiente (exemplo para o backend `.env`)
+-
+- `PORT=4000`
+- `DATABASE_URL=` (opcional, conforme implementação do `db.js`)
+- `JWT_SECRET=` (segredo para access tokens)
+- `REFRESH_TOKEN_SECRET=` (segredo para refresh tokens)
+- `ACCESS_TOKEN_EXPIRES_IN=15m`
+- `REFRESH_TOKEN_EXPIRES_IN=7d`
 
-## Observações
-- Em produção ajuste `secure:true` nos cookies e utilize TLS
-- Substitua `CONFIG.JWT_SECRET`
+Para o frontend (exemplo `.env` ou Vite):
+-
+- `VITE_API_URL=http://localhost:4000`
+
+Instalação e execução (desenvolvimento)
+-
+1. Instalar dependências do backend
+
+```bash
+cd backend
+npm install
+```
+
+2. Popular dados iniciais (seed)
+
+```bash
+npm run seed
+```
+
+3. Iniciar backend
+
+```bash
+npm run dev   # ou npm start, conforme scripts no package.json do backend
+```
+
+4. Frontend
+
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
+
+Padrões de portas (por exemplo)
+-
+- Frontend: http://localhost:3000
+- Backend: http://localhost:4000
+
+Scripts úteis (exemplos)
+-
+- Backend: `npm run dev` (inicia em modo desenvolvimento), `npm start` (produção), `npm run seed`, `npm test`
+- Frontend: `npm run dev`, `npm run build`, `npm run preview`, `npm test`
+
+Testes
+-
+- Rodar testes do backend:
+```
+cd backend
+npm test
+```
+- Rodar testes do frontend:
+```
+cd frontend
+npm test
+```
+
+Notas de segurança e produção
+-
+- Utilize HTTPS em produção e ajuste o cookie de refresh token com `secure: true` e `sameSite` apropriado.
+- Garanta que `JWT_SECRET` e `REFRESH_TOKEN_SECRET` sejam segredos fortes e armazenados em um cofre (ex.: GitHub Secrets, Vault).
+- Considere limitar o uso de refresh tokens e guardar um identificador no banco para permitir revogação.
+
+Deploy
+-
+- Este projeto é agnóstico ao provedor. Exemplos: Heroku, Vercel (frontend), DigitalOcean, AWS. Configure variáveis de ambiente no ambiente de produção.
+
+Contribuindo
+-
+- Abra issues para bugs ou features.
+- Envie PRs com descrições claras e testes quando aplicável.
+
+Licença
+-
+- Adicione aqui a licença do projeto.
+
+Referências
+-
+- Veja os módulos em `backend/auth/` para detalhes de implementação de tokens e middleware.
+
+--
+Esta documentação foi atualizada automaticamente para detalhar instruções técnicas e operação do projeto.
 
