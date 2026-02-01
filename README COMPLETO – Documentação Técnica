@@ -134,11 +134,70 @@ Notas de segurança e produção
 - Garanta que `JWT_SECRET` e `REFRESH_TOKEN_SECRET` sejam segredos fortes e armazenados em um cofre (ex.: GitHub Secrets, Vault).
 - Considere limitar o uso de refresh tokens e guardar um identificador no banco para permitir revogação.
 
-Deploy
+-Deploy & CI
 -
 - Este projeto é agnóstico ao provedor. Exemplos: Heroku, Vercel (frontend), DigitalOcean, AWS. Configure variáveis de ambiente no ambiente de produção.
 
-Contribuindo
+Integração contínua (exemplo GitHub Actions)
+-
+Adicione um workflow que instale dependências e rode os testes do `backend` e do `frontend`. Exemplo mínimo (`.github/workflows/ci.yml`):
+
+```yaml
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+	test:
+		runs-on: ubuntu-latest
+		steps:
+			- uses: actions/checkout@v4
+			- name: Setup Node
+				uses: actions/setup-node@v4
+				with:
+					node-version: '18'
+			- name: Cache node modules
+				uses: actions/cache@v4
+				with:
+					path: |
+						backend/node_modules
+						frontend/node_modules
+					key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+					restore-keys: |
+						${{ runner.os }}-node-
+			- name: Install backend deps
+				run: |
+					cd backend
+					npm ci
+			- name: Install frontend deps
+				run: |
+					cd frontend
+					npm ci
+			- name: Run backend tests
+				run: |
+					cd backend
+					npm test
+			- name: Run frontend tests
+				run: |
+					cd frontend
+					npm test
+```
+
+Dicas para erros comuns de testes
+-
+- Jest ESM / `import` em testes: Se seus testes usam `import` (ES modules), configure o Jest para ESM ou use `babel-jest`. Duas abordagens:
+	- Instalar e configurar `babel-jest` e adicionar um transform em `jest.config.js`.
+	- Usar a opção `extensionsToTreatAsEsm` e ajustar `type: "module"` no `package.json` (veja a doc do Jest sobre ESM).
+- `jest-environment-jsdom` faltando: a partir do Jest 28 o `jsdom` não vem mais embutido; instale `jest-environment-jsdom` no `frontend` com `npm install -D jest-environment-jsdom` ou ajuste `testEnvironment` em `jest.config.js`.
+- Em resumo: para compatibilidade rápida, adicione no `frontend` devDependencies `babel-jest`, `@babel/preset-env`, `@babel/preset-react` (se usar JSX) e crie um `.babelrc` ou `babel.config.js` para permitir transformação dos testes.
+
+Configuração de segredos e variáveis
+-
+- Defina variáveis sensíveis (ex.: `JWT_SECRET`, `REFRESH_TOKEN_SECRET`, `DATABASE_URL`) como GitHub Secrets e use-as no workflow quando for necessário para testes/integração em ambiente fechado.
+-
+- Este projeto é agnóstico ao provedor. Exemplos: Heroku, Vercel (frontend), DigitalOcean, AWS. Configure variáveis de ambiente no ambiente de produção.
+
+-Contribuindo
 -
 - Abra issues para bugs ou features.
 - Envie PRs com descrições claras e testes quando aplicável.
